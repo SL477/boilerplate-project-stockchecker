@@ -9,7 +9,25 @@ var apiRoutes         = require('./routes/api.js');
 var fccTestingRoutes  = require('./routes/fcctesting.js');
 var runner            = require('./test-runner');
 
+//Helmet
+var helmet = require('helmet');
+
 var app = express();
+
+//Helmet
+app.use(helmet.hidePoweredBy());
+app.use(helmet.frameguard());
+app.use(helmet.xssFilter());
+app.use(helmet.noSniff());
+app.use(helmet.ieNoOpen());
+app.use(helmet.contentSecurityPolicy(
+  {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'"],
+    }
+  }
+));
 
 app.use('/public', express.static(process.cwd() + '/public'));
 
