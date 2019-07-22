@@ -28,13 +28,24 @@ module.exports = function (app) {
   app.route('/api/stock-prices')
     .get(function (req, res){
       let stock = req.query.stock;
+      let stocker = '';
+      if (Array.isArray(stock)) {
+        let delim = '';
+        req.query.stock.forEach(element => {
+          stocker += delim + element;
+          delim = ',';
+        });
+      } else {
+        stocker = stock;
+      }
+      console.log(req.ip);
       //https://financialmodelingprep.com/api/v3/stock/real-time-price/AAPL
       console.log(stock);
       let like = req.query.like;
       console.log(like);
       let output = '';
-      console.log(process.env.STOCKAPI);
-      let request = https.get(process.env.STOCKAPI + 'AAPL', function (result) {
+      //console.log(process.env.STOCKAPI);
+      let request = https.get(process.env.STOCKAPI + stocker, function (result) {
         //console.log(result);
         result.setEncoding('utf8');
         result.on('data', (chunk) => {
