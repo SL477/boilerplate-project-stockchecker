@@ -7,19 +7,18 @@
 		"start": "node server.js"
 	},
 	"dependencies": {
-		"body-parser": "^1.19.0",
-		"chai": "^3.5.0",
-		"chai-http": "^3.0.0",
+		"body-parser": "^1.20.2",
+		"chai": "^5.1.0",
+		"chai-http": "^4.4.0",
 		"cors": "^2.8.5",
-		"express": "^4.17.1",
-		"helmet": "^3.19.0",
-		"mocha": "^3.5.3",
-		"mongodb": "^2.2.36",
-		"mongoose": "^5.6.6",
-		"zombie": "^5.0.5"
+		"express": "^4.19.1",
+		"helmet": "^7.1.0",
+		"mocha": "^10.3.0",
+		"mongodb": "^6.5.0",
+		"mongoose": "^8.2.3"
 	},
 	"engines": {
-		"node": "4.4.3"
+		"node": "16.14.2"
 	},
 	"repository": {
 		"type": "git",
@@ -30,5 +29,9 @@
 		"hyperdev",
 		"express"
 	],
-	"license": "MIT"
+	"license": "MIT",
+	"devDependencies": {
+		"eslint": "^8.57.0",
+		"prettier": "^3.2.5"
+	}
 }
