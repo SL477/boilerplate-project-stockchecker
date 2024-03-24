@@ -4,7 +4,8 @@
     "description": "What am I about?",
     "main": "server.js",
     "scripts": {
-        "start": "node server.js"
+        "start": "node server.js",
+        "test": "mocha tests/2_functional-tests.js"
     },
     "dependencies": {
         "body-parser": "^1.20.2",

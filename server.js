@@ -10,31 +10,31 @@ import fccTestingRoutes from './routes/fcctesting.js';
 import runner from './test-runner.js';
 
 // Helmet
-import {
-    hidePoweredBy,
-    frameguard,
-    xssFilter,
-    noSniff,
-    ieNoOpen,
-    contentSecurityPolicy,
-} from 'helmet';
+// import {
+//     hidePoweredBy,
+//     frameguard,
+//     xssFilter,
+//     noSniff,
+//     ieNoOpen,
+//     contentSecurityPolicy,
+// } from 'helmet';
 
 const app = express();
 
-// Helmet
-app.use(hidePoweredBy());
-app.use(frameguard());
-app.use(xssFilter());
-app.use(noSniff());
-app.use(ieNoOpen());
-app.use(
-    contentSecurityPolicy({
-        directives: {
-            defaultSrc: ["'self'"],
-            styleSrc: ["'self'"],
-        },
-    })
-);
+// // Helmet
+// app.use(hidePoweredBy());
+// app.use(frameguard());
+// app.use(xssFilter());
+// app.use(noSniff());
+// app.use(ieNoOpen());
+// app.use(
+//     contentSecurityPolicy({
+//         directives: {
+//             defaultSrc: ["'self'"],
+//             styleSrc: ["'self'"],
+//         },
+//     })
+// );
 
 app.use('/public', express.static(process.cwd() + '/public'));
 

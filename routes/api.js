@@ -106,7 +106,7 @@ export default function (app) {
     }
 
     function getPrice(req, res, stockDataArr, element, cnt, i) {
-        get(process.env.STOCKAPI + element.stock, function (result) {
+        get(process.env.STOCKAPI + element.stock + '/quote', function (result) {
             result.setEncoding('utf8');
             result.on('data', (chunk) => {
                 console.log(chunk);
