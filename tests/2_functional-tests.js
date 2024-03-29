@@ -22,9 +22,9 @@ suite('Functional Tests', function () {
                 .get('/api/stock-prices')
                 .query({ stock: 'goog' })
                 .end(function (err, res) {
-                    //complete this one too
+                    // complete this one too
                     assert.equal(res.status, 200);
-                    //console.log(res.body);
+                    // console.log(res.body);
                     assert.equal(res.body.stockData.stock, 'goog');
                     assert.isNumber(res.body.stockData.price);
                     assert.isNumber(res.body.stockData.likes);
@@ -46,7 +46,7 @@ suite('Functional Tests', function () {
                 });
         });
 
-        test('1 stock with like again (ensure likes arent double counted)', function (done) {
+        test("1 stock with like again (ensure likes aren't double counted)", function (done) {
             chaiServer
                 .request(server)
                 .get('/api/stock-prices')

@@ -10,19 +10,11 @@
 
 import { Schema, model, connect } from 'mongoose';
 import { config } from 'dotenv';
+// HTTP
+import { get } from 'https';
 config();
 
 const CONNECTION_STRING = process.env.DB; //MongoClient.connect(CONNECTION_STRING, function(err, db) {});
-
-// HTTP
-import { get } from 'https';
-// let options = {
-//   host: 'https://financialmodelingprep.com',
-//   path: '/api/v3/stock/real-time-price/'/*,
-//   headers: {
-//     'Content-Type': 'application/json'
-//   }*/
-// };
 
 // Schema
 const stockSchema = new Schema({
@@ -38,94 +30,54 @@ export default function (app) {
         .then(console.log('db connected'))
         .catch((err) => console.error(err));
 
-    app.route('/api/stock-prices').get(function (req, res) {
+    app.route('/api/stock-prices').get(async function (req, res) {
         const stockDataArr = [];
         if (Array.isArray(req.query.stock)) {
             req.query.stock.forEach((element) => {
-                stockDataArr.push({ stock: element });
+                stockDataArr.push({ stock: element, price: 0, likes: 0 });
             });
         } else {
-            stockDataArr.push({ stock: req.query.stock });
+            stockDataArr.push({ stock: req.query.stock, price: 0, likes: 0 });
         }
 
-        // Get the number of stocks in the array and keep count
-        let cnt = stockDataArr.length;
-        console.log(cnt);
-        let i = 0;
+        // need to get the price and number of likes
 
-        stockDataArr.forEach((element) => {
-            i++;
-            // if like then check if the stock and IP exist in the collection
+        const likes = await getLikes(stockDataArr);
+
+        for (let stock of stockDataArr) {
+            // console.log('stock', stock, likes);
+            stock.price = await getPrice(stock.stock);
+
+            const idx = likes.findIndex((like) => like.stock === stock.stock);
+            if (idx > -1) {
+                stock.likes = likes[idx].likes;
+            }
+
+            // if we are liking the stock set the likes
             if (req.query.like) {
+                stock.likes++;
                 stockRecord
-                    .find({ stockCode: element.stock, ip: req.ip })
+                    .find({ stockCode: stock.stock, ip: req.ip })
                     .then((doc) => {
-                        if (!doc) {
+                        if (!doc || doc.length === 0) {
                             stockRecord
                                 .create({
                                     ipAddr: req.ip,
-                                    stockCode: element.stock,
+                                    stockCode: stock.stock,
                                     like: 1,
                                 })
-                                .then(
-                                    getLikes(
-                                        req,
-                                        res,
-                                        stockDataArr,
-                                        element,
-                                        cnt,
-                                        i
-                                    )
-                                )
                                 .catch((err) => console.error(err));
-                        } else {
-                            getLikes(req, res, stockDataArr, element, cnt, i);
                         }
                     })
                     .catch((err) => console.error(err));
-            } else {
-                getLikes(req, res, stockDataArr, element, cnt, i);
             }
-        });
-    });
+        }
 
-    function getLikes(req, res, stockDataArr, element, cnt, i) {
-        // Get the number of likes. Then get the stock prices, if i = cnt call the done function and return.
-        element['price'] = 0;
-        element['likes'] = 0;
-        stockRecord
-            .find({ stockCode: element.stock })
-            .then((docs) => {
-                if (!docs) {
-                    getPrice(req, res, stockDataArr, element, cnt, i);
-                } else {
-                    docs.forEach((element) => (element.likes += element.like));
-                }
-            })
-            .catch((err) => console.error(err));
-    }
+        // console.log('before ret', stockDataArr);
 
-    function getPrice(req, res, stockDataArr, element, cnt, i) {
-        get(process.env.STOCKAPI + element.stock + '/quote', function (result) {
-            result.setEncoding('utf8');
-            result.on('data', (chunk) => {
-                console.log(chunk);
-                const obj = JSON.parse(chunk);
-                console.log(obj.price);
-                element.price = obj.price;
-                console.log(element);
-                if (i == cnt) {
-                    done(req, res, stockDataArr, element, cnt, i);
-                }
-            });
-        });
-    }
-
-    // eslint-disable-next-line no-unused-vars
-    function done(req, res, stockDataArr, element, cnt, i) {
-        if (stockDataArr.length == 1) {
+        if (stockDataArr.length === 1) {
             res.json({ stockData: stockDataArr[0] });
-        } else if (stockDataArr.length == 2) {
+        } else if (stockDataArr.length === 2) {
             stockDataArr[0]['rel_likes'] =
                 stockDataArr[0].likes - stockDataArr[1].likes;
             stockDataArr[1]['rel_likes'] =
@@ -136,5 +88,74 @@ export default function (app) {
         } else {
             res.json({ stockData: stockDataArr });
         }
+    });
+
+    /**
+     * Get the likes
+     * @param {{stock: string}[]} stockDataArr
+     * @returns {{stock: string, likes: number}[]}
+     */
+    async function getLikes(stockDataArr) {
+        const stocks = [];
+        const ret = [];
+        stockDataArr.forEach((s) => {
+            stocks.push(s.stock);
+            ret.push({ stock: s.stock, likes: 0 });
+        });
+
+        await new Promise((resolve) => {
+            stockRecord
+                .aggregate([
+                    {
+                        $match: {
+                            stockCode: {
+                                $in: stocks,
+                            },
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: '$stockCode',
+                            like: { $sum: '$like' },
+                        },
+                    },
+                ])
+                .then((docs) => {
+                    // console.log('getLikes', docs, stocks);
+                    for (let doc of docs) {
+                        const idx = ret.findIndex(
+                            (stock) => stock.stock === doc._id
+                        );
+                        if (idx > -1) {
+                            ret[idx].likes = doc.like;
+                        }
+                        // console.log('getlikes idx', idx, doc);
+                    }
+                    resolve();
+                })
+                .catch((err) => {
+                    console.error(err);
+                    resolve();
+                });
+        });
+        // console.log('getLikes before ret', ret);
+        return ret;
+    }
+
+    /**
+     * Get the stock price as a promise
+     * @param {string} stock
+     * @returns {Promise<number>}
+     */
+    function getPrice(stock) {
+        return new Promise((resolve) => {
+            get(`${process.env.STOCKAPI}${stock}/quote`, function (result) {
+                result.setEncoding('utf8');
+                result.on('data', (chunk) => {
+                    const obj = JSON.parse(chunk);
+                    resolve(obj.latestPrice);
+                });
+            });
+        });
     }
 }

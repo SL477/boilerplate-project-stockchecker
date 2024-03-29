@@ -46,12 +46,12 @@ readdirSync(testDir)
     });
 
 const emitter = new EventEmitter();
-emitter.run = async function () {
+emitter.run = function () {
     const tests = [];
     let context = '';
     const separator = ' -> ';
     // Run the tests.
-    await mocha.loadFilesAsync(() => {
+    mocha.loadFilesAsync(() => {
         try {
             mocha
                 .ui('tdd')
@@ -84,7 +84,7 @@ emitter.run = async function () {
                     );
                 });
         } catch (e) {
-            console.error(e);
+            console.error('test runner error', e);
             throw e;
         }
     });
