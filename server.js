@@ -32,6 +32,7 @@ app.use(
         directives: {
             defaultSrc: ["'self'"],
             styleSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
         },
     })
 );

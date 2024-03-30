@@ -17,7 +17,7 @@
         <header>
             <h1>ISQA_5 - Nasdaq Stock Price Checker</h1>
         </header>
-        <div id="userstories" style="margin-left: 5%; margin-top: 5%">
+        <div id="userstories">
             <h3>User Stories</h3>
             <ol>
                 <li>
@@ -26,7 +26,7 @@
                 </li>
                 <li>
                     I can <b>GET</b> <code>/api/stock-prices</code> with form
-                    data containing a Nasdaq <i>stock</i> ticker and recieve
+                    data containing a Nasdaq <i>stock</i> ticker and receive
                     back an object <i>stockData</i>.
                 </li>
                 <li>
@@ -69,16 +69,16 @@
                 >{"stockData":[{"stock":"MSFT","price":"62.30","rel_likes":-1},{"stock":"GOOG","price":"786.90","rel_likes":1}]}</code
             >
         </div>
-        <hr style="margin: 50px" />
-        <div id="testui" style="margin-left: 5%">
-            <h2 style="text-align: left">Front-End:</h2>
+        <hr />
+        <div id="testui">
+            <h2>Front-End:</h2>
             <h3>Get single price and total likes</h3>
             <form id="testForm2" class="border">
                 <input
                     type="text"
                     name="stock"
                     placeholder="goog"
-                    style="width: 100px"
+                    class="width100"
                     required=""
                 />
                 <label
@@ -93,14 +93,14 @@
                     type="text"
                     name="stock"
                     placeholder="goog"
-                    style="width: 100px"
+                    class="width100"
                     required=""
                 />
                 <input
                     type="text"
                     name="stock"
                     placeholder="msft"
-                    style="width: 100px"
+                    class="width100"
                     required=""
                 />
                 <label
@@ -111,38 +111,7 @@
             </form>
             <code id="jsonResult"></code>
         </div>
-        <hr style="margin: 50px; margin-top: 200px" />
-        <!-- Your web-app is https, so your scripts need to be too -->
-        <script
-            src="https://code.jquery.com/jquery-2.2.1.min.js"
-            integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
-            crossorigin="anonymous"
-        ></script>
-        <script>
-            $(function () {
-                $('#testForm').submit(function (e) {
-                    $.ajax({
-                        url: '/api/stock-prices',
-                        type: 'get',
-                        data: $('#testForm').serialize(),
-                        success: function (data) {
-                            $('#jsonResult').text(JSON.stringify(data));
-                        },
-                    });
-                    e.preventDefault();
-                });
-                $('#testForm2').submit(function (e) {
-                    $.ajax({
-                        url: '/api/stock-prices',
-                        type: 'get',
-                        data: $('#testForm2').serialize(),
-                        success: function (data) {
-                            $('#jsonResult').text(JSON.stringify(data));
-                        },
-                    });
-                    e.preventDefault();
-                });
-            });
-        </script>
+        <hr class="bottomHr" />
+        <script src="./public/script.js"></script>
     </body>
 </html>
