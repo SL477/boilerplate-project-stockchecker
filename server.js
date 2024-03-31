@@ -8,6 +8,9 @@ import cors from 'cors';
 import apiRoutes from './routes/api.js';
 import fccTestingRoutes from './routes/fcctesting.js';
 import runner from './test-runner.js';
+// import swaggerDocs from './swagger.js';
+import { swaggerSpec } from './swagger.js';
+import swaggerUi from 'swagger-ui-express';
 
 // Helmet
 import {
@@ -31,8 +34,9 @@ app.use(
     contentSecurityPolicy({
         directives: {
             defaultSrc: ["'self'"],
-            styleSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https: 'unsafe-inline'"],
+            imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
         },
     })
 );
@@ -43,6 +47,9 @@ app.use(cors({ origin: '*' })); //For FCC testing purposes only
 
 app.use(json());
 app.use(urlencoded({ extended: true }));
+
+console.log('swaggerSpec', swaggerSpec);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Index page (static HTML)
 app.route('/').get(function (req, res) {
@@ -76,6 +83,7 @@ const listener = app.listen(process.env.PORT || 3000, function () {
             }
         }, 3500);
     }
+    // swaggerDocs(app, listener.address().port);
 });
 
 export default app; //for testing

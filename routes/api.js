@@ -30,6 +30,44 @@ export default function (app) {
         .then(console.log('db connected'))
         .catch((err) => console.error(err));
 
+    /**
+     * @swagger
+     * /api/stock-prices:
+     *  get:
+     *      description: Get the stock price
+     *      parameters:
+     *         - name: stock
+     *           in: query
+     *           required: true
+     *           type: string
+     *         - name: like
+     *           in: query
+     *           required: false
+     *           type: boolean
+     *      produces:
+     *          - application/json
+     *      tags:
+     *          - stock price
+     *      responses:
+     *          200:
+     *              description: shows the stock price and number of likes
+     *              content:
+     *                  application/json:
+     *                      schema:
+     *                          properties:
+     *                              stockData:
+     *                                  type: object
+     *                                  properties:
+     *                                      stock:
+     *                                          type: string
+     *                                          description: The stock code(s) you sent
+     *                                      price:
+     *                                          type: number
+     *                                          description: The current stock price in $
+     *                                      likes:
+     *                                          type: number
+     *                                          description: The number of likes a stock has
+     */
     app.route('/api/stock-prices').get(async function (req, res) {
         const stockDataArr = [];
         if (Array.isArray(req.query.stock)) {
