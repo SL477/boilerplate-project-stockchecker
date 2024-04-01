@@ -8,7 +8,6 @@ import cors from 'cors';
 import apiRoutes from './routes/api.js';
 import fccTestingRoutes from './routes/fcctesting.js';
 import runner from './test-runner.js';
-// import swaggerDocs from './swagger.js';
 import { swaggerSpec } from './swagger.js';
 import swaggerUi from 'swagger-ui-express';
 
@@ -48,7 +47,6 @@ app.use(cors({ origin: '*' })); //For FCC testing purposes only
 app.use(json());
 app.use(urlencoded({ extended: true }));
 
-console.log('swaggerSpec', swaggerSpec);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Index page (static HTML)

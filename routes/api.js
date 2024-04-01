@@ -13,6 +13,7 @@ import { config } from 'dotenv';
 // HTTP
 import { get } from 'https';
 config();
+import crypto from 'crypto';
 
 const CONNECTION_STRING = process.env.DB; //MongoClient.connect(CONNECTION_STRING, function(err, db) {});
 
@@ -39,11 +40,14 @@ export default function (app) {
      *         - name: stock
      *           in: query
      *           required: true
-     *           type: string
+     *           description: E.G. Goog
+     *           default: goog
      *         - name: like
      *           in: query
      *           required: false
-     *           type: boolean
+     *           schema:
+     *              type: "boolean"
+     *              default: false
      *      produces:
      *          - application/json
      *      tags:
@@ -82,7 +86,7 @@ export default function (app) {
 
         const likes = await getLikes(stockDataArr);
 
-        for (let stock of stockDataArr) {
+        for (const stock of stockDataArr) {
             // console.log('stock', stock, likes);
             stock.price = await getPrice(stock.stock);
 
@@ -94,13 +98,17 @@ export default function (app) {
             // if we are liking the stock set the likes
             if (req.query.like) {
                 stock.likes++;
+                const hashIP = crypto
+                    .createHash('sha256')
+                    .update(req.ip)
+                    .digest('hex');
                 stockRecord
-                    .find({ stockCode: stock.stock, ip: req.ip })
+                    .find({ stockCode: stock.stock, ip: hashIP })
                     .then((doc) => {
                         if (!doc || doc.length === 0) {
                             stockRecord
                                 .create({
-                                    ipAddr: req.ip,
+                                    ipAddr: hashIP,
                                     stockCode: stock.stock,
                                     like: 1,
                                 })
